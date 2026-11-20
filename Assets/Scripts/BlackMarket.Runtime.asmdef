@@ -1,0 +1,22 @@
+{
+    "name": "BlackMarket.Runtime",
+    "rootNamespace": "BlackMarket",
+    "references": [
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.0.0",
+            "define": "BLACKMARKET_HAS_INPUT_SYSTEM"
+        }
+    ],
+    "noEngineReferences": false
+}
