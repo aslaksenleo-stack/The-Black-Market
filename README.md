@@ -42,7 +42,7 @@ Unity changes its website now and then, so button names may differ slightly. Loo
 
 ### 1. GitHub
 1. Create a free account at github.com.
-2. Tap **+** > **New repository**. Name: `TheBlackMarket`. Private is fine. **Don't** add a README or .gitignore.
+2. Tap **+** > **New repository**. Name: `The-Black-Market`. Private is fine. **Don't** add a README or .gitignore.
 3. Tell Claude the repository name. Claude pushes this project to it.
 
 ### 2. Unity account and project
@@ -55,7 +55,7 @@ Unity changes its website now and then, so button names may differ slightly. Loo
    Unity may ask for a payment method. Build Automation is pay-as-you-go with a monthly free allowance
    (at time of writing about 200 Windows build minutes a month), so the early builds here should stay free.
    Check the current pricing on the screen before you agree.
-2. **Source control:** choose **GitHub**, authorise Unity, select `TheBlackMarket`, branch `main`.
+2. **Source control:** choose **GitHub**, authorise Unity, select `The-Black-Market`, branch `main`.
 3. **Add a build target / configuration:**
    - Platform: **Android**
    - Unity version: **6000.3.8f1** (or "use project version")
