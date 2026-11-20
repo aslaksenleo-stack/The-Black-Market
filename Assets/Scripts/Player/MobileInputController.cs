@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 #if ENABLE_INPUT_SYSTEM && BLACKMARKET_HAS_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -8,13 +9,11 @@ namespace BlackMarket.Player
     /// <summary>
     /// Turns touchscreen (phone) and mouse/keyboard (editor) input into IPlayerInput values.
     ///
-    /// Touch: a finger that starts to the right of LookZoneStartX drags the camera.
-    ///        In the shop this is the whole screen (0). In marketplaces it becomes 0.4 so the
-    ///        left side is free for the virtual joystick.
-    /// Editor: hold the right mouse button and drag to look, WASD to move, E to interact.
+    /// Touch: a finger that starts on the 3D view (not on a button, and right of LookZoneStartX)
+    ///        drags the camera. A quick, still touch counts as a tap on whatever is under it.
+    /// Editor: hold the right mouse button and drag to look, left-click to tap, WASD to move, E to interact.
     ///
-    /// On-screen buttons (joystick, interact button) are added later and call
-    /// SetVirtualMove / RequestInteract.
+    /// On-screen buttons call SetVirtualMove / RequestInteract.
     /// </summary>
     [DefaultExecutionOrder(-100)] // Read input before anything uses it this frame.
     [DisallowMultipleComponent]
@@ -27,6 +26,13 @@ namespace BlackMarket.Player
         [Tooltip("Editor only: when ticked, the right mouse button must be held to look.")]
         [SerializeField] private bool requireMouseButtonForLook = true;
 
+        [Tooltip("Longest touch that still counts as a tap.")]
+        [SerializeField] private float tapMaxSeconds = 0.3f;
+
+        [Tooltip("How far (in inches) a finger may move and still count as a tap.")]
+        [SerializeField] private float tapMaxMoveInches = 0.12f;
+
+        private readonly TapDetector tapDetector = new TapDetector();
         private Vector2 virtualMove;
         private bool interactRequested;
         private int lookTouchId = -1;
@@ -34,6 +40,8 @@ namespace BlackMarket.Player
         public Vector2 LookDelta { get; private set; }
         public Vector2 Move { get; private set; }
         public bool InteractPressed { get; private set; }
+        public bool Tapped { get; private set; }
+        public Vector2 TapPosition { get; private set; }
 
         public float LookZoneStartX
         {
@@ -53,12 +61,22 @@ namespace BlackMarket.Player
             interactRequested = true;
         }
 
+        private void Awake()
+        {
+#if !(ENABLE_INPUT_SYSTEM && BLACKMARKET_HAS_INPUT_SYSTEM) && ENABLE_LEGACY_INPUT_MANAGER
+            // Otherwise every touch is ALSO reported as a mouse click, causing double taps.
+            Input.simulateMouseWithTouches = false;
+#endif
+        }
+
         private void OnDisable()
         {
             LookDelta = Vector2.zero;
             Move = Vector2.zero;
             InteractPressed = false;
+            Tapped = false;
             lookTouchId = -1;
+            tapDetector.Cancel();
         }
 
         private void Update()
@@ -67,14 +85,33 @@ namespace BlackMarket.Player
             Vector2 move = virtualMove;
             bool interact = interactRequested;
             interactRequested = false;
+            Tapped = false;
+
+            float now = Time.unscaledTime;
+            tapDetector.MaxDurationSeconds = tapMaxSeconds;
+            tapDetector.MaxMovePixels = tapMaxMoveInches * LookMath.EffectiveDpi(Screen.dpi);
 
 #if ENABLE_INPUT_SYSTEM && BLACKMARKET_HAS_INPUT_SYSTEM
-            ReadTouchLook(ref look);
+            ReadTouches(ref look, now);
 
             Mouse mouse = Mouse.current;
-            if (mouse != null && lookTouchId < 0 && (!requireMouseButtonForLook || mouse.rightButton.isPressed))
+            if (mouse != null && lookTouchId < 0)
             {
-                look += mouse.delta.ReadValue();
+                if (!requireMouseButtonForLook || mouse.rightButton.isPressed)
+                {
+                    look += mouse.delta.ReadValue();
+                }
+
+                Vector2 mousePosition = mouse.position.ReadValue();
+                if (mouse.leftButton.wasPressedThisFrame && !IsPointerOverUI(-1))
+                {
+                    tapDetector.Begin(mousePosition, now);
+                }
+
+                if (mouse.leftButton.wasReleasedThisFrame && tapDetector.End(mousePosition, now))
+                {
+                    RegisterTap(mousePosition);
+                }
             }
 
             Keyboard keyboard = Keyboard.current;
@@ -91,13 +128,27 @@ namespace BlackMarket.Player
                 }
             }
 #elif ENABLE_LEGACY_INPUT_MANAGER
-            ReadLegacyTouchLook(ref look);
+            ReadLegacyTouches(ref look, now);
 
-            if (lookTouchId < 0 && (!requireMouseButtonForLook || Input.GetMouseButton(1)))
+            if (lookTouchId < 0 && Input.touchCount == 0)
             {
-                // Legacy mouse axes are not in pixels; this scale roughly matches pixel deltas.
-                const float legacyMouseToPixels = 10f;
-                look += new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * legacyMouseToPixels;
+                if (!requireMouseButtonForLook || Input.GetMouseButton(1))
+                {
+                    // Legacy mouse axes are not in pixels; this scale roughly matches pixel deltas.
+                    const float legacyMouseToPixels = 10f;
+                    look += new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * legacyMouseToPixels;
+                }
+
+                Vector2 mousePosition = Input.mousePosition;
+                if (Input.GetMouseButtonDown(0) && !IsPointerOverUI(-1))
+                {
+                    tapDetector.Begin(mousePosition, now);
+                }
+
+                if (Input.GetMouseButtonUp(0) && tapDetector.End(mousePosition, now))
+                {
+                    RegisterTap(mousePosition);
+                }
             }
 
             Vector2 keys = new Vector2(
@@ -116,8 +167,20 @@ namespace BlackMarket.Player
             InteractPressed = interact;
         }
 
+        private void RegisterTap(Vector2 screenPosition)
+        {
+            Tapped = true;
+            TapPosition = screenPosition;
+        }
+
+        private static bool IsPointerOverUI(int pointerId)
+        {
+            EventSystem eventSystem = EventSystem.current;
+            return eventSystem != null && eventSystem.IsPointerOverGameObject(pointerId);
+        }
+
 #if ENABLE_INPUT_SYSTEM && BLACKMARKET_HAS_INPUT_SYSTEM
-        private void ReadTouchLook(ref Vector2 look)
+        private void ReadTouches(ref Vector2 look, float now)
         {
             Touchscreen screen = Touchscreen.current;
             if (screen == null)
@@ -131,27 +194,42 @@ namespace BlackMarket.Player
 
             foreach (var touch in screen.touches)
             {
+                int id = touch.touchId.ReadValue();
+                Vector2 position = touch.position.ReadValue();
+
+                // Claim a new finger only when it first touches the 3D view inside the look zone.
+                if (lookTouchId < 0 && touch.press.wasPressedThisFrame &&
+                    position.x >= lookZoneStartPixels && !IsPointerOverUI(id))
+                {
+                    lookTouchId = id;
+                    tapDetector.Begin(position, now);
+                }
+
+                if (id != lookTouchId)
+                {
+                    continue;
+                }
+
+                if (touch.press.wasReleasedThisFrame)
+                {
+                    if (tapDetector.End(position, now))
+                    {
+                        RegisterTap(position);
+                    }
+
+                    continue;
+                }
+
                 if (!touch.press.isPressed)
                 {
                     continue;
                 }
 
-                int id = touch.touchId.ReadValue();
-
-                // Claim a new finger for looking only when it first touches inside the look zone.
-                if (lookTouchId < 0 && touch.press.wasPressedThisFrame &&
-                    touch.position.ReadValue().x >= lookZoneStartPixels)
+                trackedTouchStillDown = true;
+                if (!touch.press.wasPressedThisFrame)
                 {
-                    lookTouchId = id;
-                }
-
-                if (id == lookTouchId)
-                {
-                    trackedTouchStillDown = true;
-                    if (!touch.press.wasPressedThisFrame)
-                    {
-                        look += touch.delta.ReadValue();
-                    }
+                    look += touch.delta.ReadValue();
+                    tapDetector.Move(position);
                 }
             }
 
@@ -161,7 +239,7 @@ namespace BlackMarket.Player
             }
         }
 #elif ENABLE_LEGACY_INPUT_MANAGER
-        private void ReadLegacyTouchLook(ref Vector2 look)
+        private void ReadLegacyTouches(ref Vector2 look, float now)
         {
             bool trackedTouchStillDown = false;
             float lookZoneStartPixels = Screen.width * lookZoneStartX;
@@ -170,14 +248,31 @@ namespace BlackMarket.Player
             {
                 Touch touch = Input.GetTouch(i);
 
-                if (lookTouchId < 0 && touch.phase == TouchPhase.Began && touch.position.x >= lookZoneStartPixels)
+                if (lookTouchId < 0 && touch.phase == TouchPhase.Began &&
+                    touch.position.x >= lookZoneStartPixels && !IsPointerOverUI(touch.fingerId))
                 {
                     lookTouchId = touch.fingerId;
+                    tapDetector.Begin(touch.position, now);
                 }
 
-                if (touch.fingerId != lookTouchId ||
-                    touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+                if (touch.fingerId != lookTouchId)
                 {
+                    continue;
+                }
+
+                if (touch.phase == TouchPhase.Ended)
+                {
+                    if (tapDetector.End(touch.position, now))
+                    {
+                        RegisterTap(touch.position);
+                    }
+
+                    continue;
+                }
+
+                if (touch.phase == TouchPhase.Canceled)
+                {
+                    tapDetector.Cancel();
                     continue;
                 }
 
@@ -185,6 +280,7 @@ namespace BlackMarket.Player
                 if (touch.phase == TouchPhase.Moved)
                 {
                     look += touch.deltaPosition;
+                    tapDetector.Move(touch.position);
                 }
             }
 

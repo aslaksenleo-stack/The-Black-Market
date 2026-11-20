@@ -59,8 +59,8 @@ Illegal transitions are refused and logged.
 | Folder | Classes | Milestone |
 |---|---|---|
 | Core | ✅ GameManager, ✅ ServiceRegistry, ✅ GameStateManager, ✅ SceneLoader, ✅ SceneNames, ✅ Bootstrapper | 0 |
-| Player | ✅ IPlayerInput, ✅ MobileInputController, CameraController, FirstPersonController | 0 / 1 / 5 |
-| Interaction | IInteractable, InteractionController | 1 |
+| Player | ✅ IPlayerInput, ✅ MobileInputController, ✅ TapDetector, ✅ LookMath, ✅ CameraController, FirstPersonController | 0 / 1 / 5 |
+| Interaction | ✅ IInteractable, ✅ InteractionController | 1 |
 | Customers | CustomerProfile (SO), CustomerAI, CustomerSpawner, CustomerQueue, CustomerPreferenceSystem, CustomerManager | 2 |
 | Items | ItemDefinition (SO), ItemDatabase, ItemInstance, ItemInspectionSystem, ItemSpawner | 3 |
 | Inventory | InventoryManager, InventorySlot, StorageManager | 3 |
@@ -68,11 +68,21 @@ Illegal transitions are refused and logged.
 | Economy | PriceCalculator, EconomyManager, MarketPriceSystem, SupplyDemandSystem | 4 / 6 |
 | Merchants | MerchantProfile (SO), MerchantInventory, MerchantNegotiationSystem, MerchantManager | 5 |
 | Dimensions | DimensionDefinition (SO), DimensionManager, MarketplaceManager, PortalController | 5 / 8 |
-| Shop | ShopManager, ShopUpgradeManager, ShopExpansionSystem | 6 |
+| Shop | ✅ CounterInteractable, ✅ ShopSceneController, ShopManager, ShopUpgradeManager, ShopExpansionSystem | 1 / 6 |
 | Progression | ProgressionManager, BusinessRankSystem, UnlockManager, AchievementManager | 6 |
 | Save | SaveData, SaveManager, SaveValidator | 6 |
 | Appraisal | AppraisalManager, AppraisalDevice, AppraisalResult | 7 |
-| UI | ShopHUD, CustomerUI, MerchantUI, InventoryUI, UpgradeUI, TravelUI, AppraisalUI, DialogueUI | 1 → 7 |
+| UI | ✅ UITheme, ✅ UIFactory, ✅ SafeAreaFitter, ✅ ShopHUD, CustomerUI, MerchantUI, InventoryUI, UpgradeUI, TravelUI, AppraisalUI, DialogueUI | 1 → 7 |
+
+## UI approach
+UI is built in code (`UIFactory`) from one design system (`UITheme`): dark walnut panels, thin brass borders,
+parchment text, flat colours, square corners, 1920×1080 reference scaled by height, touch targets ≥140 px tall,
+and everything inside the phone's safe area. Screens only display data and raise events. Controllers such as
+`ShopSceneController` connect them to gameplay.
+
+## Generated scenes
+Scenes containing a `__GeneratedByProjectSetup` object are rebuilt from code on every cloud build
+(`ShopSceneBuilder`), so layout changes ship by pushing code. Scenes made by hand (no marker) are never overwritten.
 
 ## Key rules for upcoming systems
 - **Transactions are atomic:** validate everything (money, stock, capacity, item still exists) first, then apply

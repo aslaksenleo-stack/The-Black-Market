@@ -17,6 +17,8 @@ Any compile error you see is a bug on my side: send me the full Console message.
 | `GameStateManagerTests` | 6 | Default state, allowed/blocked transitions, travel round trip, events only on real changes | Not yet run |
 | `ServiceRegistryTests` | 6 | Register/get, missing service, duplicates, null, TryGet, unregister | Not yet run |
 | `SceneNamesTests` | 3 methods (8 cases) | Scene → state mapping, Bootstrap first | Not yet run |
+| `LookMathTests` | 7 | Degrees per inch, same feel on all screen densities, look direction, invert, yaw/pitch clamps, unknown DPI | Not yet run |
+| `TapDetectorTests` | 7 | Tap vs long press vs drag, release far away, no double taps, cancel | Not yet run |
 
 ## Manual checklist: Milestone 0 (phone)
 | # | Check | Expected | Result |
@@ -26,6 +28,19 @@ Any compile error you see is a bug on my side: send me the full Console message.
 | 3 | Launch | Black for a moment, then grey shop: counter in front, walls around | |
 | 4 | Rotate phone | Stays landscape and flips between both landscape sides | |
 | 5 | Leave app and return | Game resumes, no crash | |
+
+## Manual checklist: Milestone 1 (phone)
+| # | Check | Expected | Result |
+|---|---|---|---|
+| 1 | Launch | Warm-lit shop interior: counter in front, door ahead, portal device to the right | |
+| 2 | Drag finger | View turns smoothly; stops at about 100° left/right; can look down at the counter | |
+| 3 | Drag starting on a button | Camera does NOT move | |
+| 4 | Look at counter | Crosshair grows/turns brass; **Use counter** button appears bottom-right | |
+| 5 | Press Use counter | Counter panel opens; camera can't move while it's open | |
+| 6 | Close | Panel closes, looking works again | |
+| 7 | Tap the counter directly | Counter panel opens | |
+| 8 | Inventory / Upgrades / Travel | Short message appears at the top and fades | |
+| 9 | Phone with a notch | No buttons hidden under the notch | |
 
 ## Planned critical tests (later milestones, per GDD Part 14 I)
 - Buying: exact money, one coin short, repeated Buy presses, merchant out of stock

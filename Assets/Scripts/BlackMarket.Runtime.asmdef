@@ -2,7 +2,8 @@
     "name": "BlackMarket.Runtime",
     "rootNamespace": "BlackMarket",
     "references": [
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

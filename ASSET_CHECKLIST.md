@@ -10,15 +10,15 @@ items ≤ 3k triangles, 512–1024 px textures · characters ≤ 15k tris · sho
 | Asset | Status | Notes |
 |---|---|---|
 | Counter | 🟨 | Wooden, worn, brass fittings |
-| Display shelves (3 upgrade tiers) | ⬜ | Tiers must look visibly better |
-| Tables | ⬜ | |
+| Display shelves (3 upgrade tiers) | 🟨 | Tiers must look visibly better |
+| Tables | 🟨 | Display table with glass case |
 | Storage area / crates | ⬜ | Grows with Storage upgrade |
-| Lights (lamps, lanterns) | ⬜ | Warm, believable |
-| Entrance door | ⬜ | Opening animation |
+| Lights (lamps, lanterns) | 🟨 | Two warm ceiling lamps + portal glow |
+| Entrance door | 🟨 | Frame only; door + opening animation missing |
 | Walls / floor / ceiling | 🟨 | Realistic materials |
-| Portal device | ⬜ | Centrepiece, activation VFX |
+| Portal device | 🟨 | Brass frame + glowing core; activation VFX missing |
 | Appraisal equipment (basic, advanced, scanner) | ⬜ | |
-| Decorations | ⬜ | |
+| Decorations | 🟨 | Ledger, bell, scales, shelf items |
 
 ## Characters
 | Asset | Status | Notes |
@@ -36,9 +36,9 @@ items ≤ 3k triangles, 512–1024 px textures · characters ≤ 15k tris · sho
 ## UI
 | Asset | Status |
 |---|---|
-| Font (licensed, readable at small sizes) | ⬜ |
+| Font (licensed, readable at small sizes) | 🟨 Unity built-in font for now |
 | Icon set: coins, rarity, categories, HUD buttons | ⬜ |
-| Panel / button sprites (one consistent style) | ⬜ |
+| Panel / button sprites (one consistent style) | 🟨 Flat code-drawn panels (UITheme) |
 | 30 item inventory icons (rendered from the 3D models, not AI-generic) | ⬜ |
 
 ## Audio

@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.0] Milestone 1: Shop prototype (2026-11-21)
+### Added
+- Touch camera look (`CameraController`, `LookMath`), tap detection (`TapDetector`), UI-aware touch handling.
+- Interaction system (`IInteractable`, `InteractionController`): look-at + Interact button, or tap the object.
+- `CounterInteractable` and counter panel.
+- UI design system (`UITheme`, `UIFactory`, `SafeAreaFitter`) and `ShopHUD`.
+- `ShopSceneController` wiring scene systems together.
+- `ShopSceneBuilder`: generated greybox shop interior with placeholder materials and lighting.
+- 14 new edit-mode tests (LookMath, TapDetector).
+### Changed
+- Generated scenes are now rebuilt on every cloud build (marker object `__GeneratedByProjectSetup`).
+- Runtime assembly references `UnityEngine.UI`.
+
 ## [0.1.0] Milestone 0 complete (2026-11-20)
 - First successful cloud build (#3). APK installed and launched on an Android phone: Bootstrap → Shop loads in landscape.
 - Known: placeholder geometry is unlit-looking white; counter is just below the default view (camera look comes in Milestone 1).

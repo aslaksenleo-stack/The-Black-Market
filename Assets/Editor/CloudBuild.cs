@@ -13,7 +13,7 @@ namespace BlackMarket.EditorTools
     ///
     /// Before every cloud build this creates any missing scenes, puts them in Build Settings
     /// and applies the Android settings, so the build works without anyone opening the Editor.
-    /// Existing scenes are never overwritten.
+    /// Generated scenes are rebuilt every time; hand-made scenes are never overwritten.
     /// </summary>
     public static class CloudBuild
     {
@@ -21,7 +21,7 @@ namespace BlackMarket.EditorTools
         {
             Debug.Log("[CloudBuild] Pre-export setup starting.");
 
-            ProjectSetup.CreateMilestone0Scenes(overwrite: false);
+            ProjectSetup.CreateGeneratedScenes(forceOverwrite: false);
             ProjectSetup.ConfigureAndroidPlayerSettings();
 
             // The cloud machine already targets Android, so the target is not checked here.

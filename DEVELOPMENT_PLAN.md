@@ -36,7 +36,15 @@ that builds for Android.
 
 **Completion condition:** clean project launches successfully. The cloud build succeeds and the APK opens to the grey shop on your phone.
 
-## Milestone 1: Shop prototype ⬜ (recommended next)
+## Milestone 1: Shop prototype 🔶 (code pushed, awaiting phone test)
+Implemented: `CameraController` + `LookMath` (DPI-scaled look, yaw ±100°, pitch −35°…60°), `TapDetector`,
+`IInteractable` + `InteractionController` (centre-of-screen focus + tap-to-use), `CounterInteractable`,
+`ShopHUD` built from `UIFactory`/`UITheme` (money, rank, customer status, Inventory/Upgrades/Travel, contextual
+Interact button, crosshair, toasts, counter panel), `SafeAreaFitter`, `ShopSceneController`, and a generated
+greybox shop (`ShopSceneBuilder`): enclosed room, door, counter with props, two shelf units, display table,
+portal device, placeholder materials, warm lamps.
+
+Original plan:
 **Objective:** player stands behind the counter, looks around and interacts with the counter.
 
 Planned implementation:

@@ -16,7 +16,7 @@ namespace BlackMarket.EditorTools
     {
         private const string MenuRoot = "The Black Market/Setup/";
 
-        [MenuItem(MenuRoot + "1. Create Milestone 0 Scenes", priority = 1)]
+        [MenuItem(MenuRoot + "1. Create Scenes", priority = 1)]
         public static void CreateMilestone0Scenes()
         {
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
@@ -29,14 +29,14 @@ namespace BlackMarket.EditorTools
 
             if (anyExist && !EditorUtility.DisplayDialog(
                     "Scenes already exist",
-                    "Bootstrap and/or Shop scenes already exist. Overwrite them with fresh Milestone 0 versions?\n\n" +
+                    "Bootstrap and/or Shop scenes already exist. Overwrite them with freshly generated versions?\n\n" +
                     "Any changes you made to those scenes will be lost.",
                     "Overwrite", "Cancel"))
             {
                 return;
             }
 
-            ProjectSetup.CreateMilestone0Scenes(overwrite: true);
+            ProjectSetup.CreateGeneratedScenes(forceOverwrite: true);
             EditorSceneManager.OpenScene(ProjectSetup.ScenePath(SceneNames.Bootstrap));
         }
 
