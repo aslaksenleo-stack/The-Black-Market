@@ -17,7 +17,7 @@ These are defaults I chose because the GDD leaves them open. None changes a core
 
 ---
 
-## Milestone 0: Project foundation 🔶
+## Milestone 0: Project foundation ✅ (verified on phone 2026-11-20, cloud build #3)
 **Objective:** a clean Unity project with the folder structure, core architecture, basic input and two scenes,
 that builds for Android.
 
@@ -32,7 +32,7 @@ that builds for Android.
 | Standalone Unity project + cloud build | 🔶 | `Packages/manifest.json`, `ProjectVersion.txt`, `CloudBuild.cs` |
 | Assembly definitions | ✅ | `BlackMarket.Runtime`, `BlackMarket.Editor`, `BlackMarket.Tests.EditMode` |
 | Unit tests | 🔶 | 15 edit-mode test methods, 20 cases (state transitions, registry, scene mapping) |
-| Project builds | ⬜ | **You:** README setup steps 1–4, then install the APK |
+| Project builds | ✅ | Cloud build #3 succeeded; APK runs on Android phone and shows the placeholder shop |
 
 **Completion condition:** clean project launches successfully. The cloud build succeeds and the APK opens to the grey shop on your phone.
 

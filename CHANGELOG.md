@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.0] Milestone 0 complete (2026-11-20)
+- First successful cloud build (#3). APK installed and launched on an Android phone: Bootstrap → Shop loads in landscape.
+- Known: placeholder geometry is unlit-looking white; counter is just below the default view (camera look comes in Milestone 1).
+
 ## [0.0.3] Cloud build connected (2026-11-20)
 ### Changed
 - Unity Build Automation target `Android` configured (Unity 6000.3.8f1, Windows Micro, debug keystore, pre-export `BlackMarket.EditorTools.CloudBuild.PreExport`, auto-build on).
