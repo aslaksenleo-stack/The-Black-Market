@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.0.3] Cloud build connected (2026-11-20)
+### Changed
+- Unity Build Automation target `Android` configured (Unity 6000.3.8f1, Windows Micro, debug keystore, pre-export `BlackMarket.EditorTools.CloudBuild.PreExport`, auto-build on).
+
 ## [0.0.2] No-PC cloud build pipeline (2026-11-20)
 ### Added
 - Repository is now a complete Unity project: `Packages/manifest.json`, `ProjectSettings/ProjectVersion.txt` (6000.3.8f1).
