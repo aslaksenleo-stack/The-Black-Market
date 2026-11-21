@@ -1,4 +1,5 @@
 using BlackMarket.Economy;
+using BlackMarket.Save;
 using BlackMarket.Trading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -23,6 +24,8 @@ namespace BlackMarket.Core
 
         /// <summary>The shop's trading state (coins, stock, upgrades, clock). Lives as long as the game.</summary>
         public ShopGame Shop { get; private set; }
+
+        private SaveStore saves;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
@@ -57,7 +60,8 @@ namespace BlackMarket.Core
 
             State = new GameStateManager(GameState.Booting);
             Scenes = new SceneLoader(this);
-            Shop = new ShopGame(new SeededRandom(System.Environment.TickCount));
+            Shop = LoadOrCreateShop();
+            Shop.Checkpoint += SaveGame;
 
             ServiceRegistry.Register(State);
             ServiceRegistry.Register(Scenes);
@@ -75,6 +79,7 @@ namespace BlackMarket.Core
             }
 
             SceneManager.sceneLoaded -= OnSceneLoaded;
+            if (Shop != null) Shop.Checkpoint -= SaveGame;
             if (State != null)
             {
                 State.StateChanged -= LogStateChange;
@@ -82,6 +87,45 @@ namespace BlackMarket.Core
 
             ServiceRegistry.Clear();
             current = null;
+        }
+
+        // ------------------------------------------------------------------ Saving
+
+        private ShopGame LoadOrCreateShop()
+        {
+            saves = new SaveStore(Application.persistentDataPath, d => JsonUtility.ToJson(d), JsonUtility.FromJson<SaveData>);
+            var random = new SeededRandom(System.Environment.TickCount);
+
+            SaveData data = saves.Read(out string note);
+            if (note != null) Debug.LogWarning("[GameManager] " + note);
+            if (data == null)
+            {
+                Debug.Log("[GameManager] No save found: starting a new shop.");
+                return new ShopGame(random);
+            }
+
+            Debug.Log($"[GameManager] Loaded save: day {data.day}, {data.coins} coins, {data.items.Count} items.");
+            return ShopGame.FromSave(data, random);
+        }
+
+        private void SaveGame()
+        {
+            if (Shop == null || saves == null) return;
+            if (!saves.Write(Shop.CreateSave(), out string error))
+            {
+                Debug.LogError("[GameManager] Save failed: " + error);
+            }
+        }
+
+        // Phones often kill apps in the background without warning, so save whenever the app is paused.
+        private void OnApplicationPause(bool paused)
+        {
+            if (paused) SaveGame();
+        }
+
+        private void OnApplicationQuit()
+        {
+            SaveGame();
         }
 
         // Keeps GameState in sync with whichever scene is open.

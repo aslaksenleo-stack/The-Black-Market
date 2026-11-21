@@ -65,6 +65,16 @@ namespace BlackMarket.Trading
             Recorded?.Invoke(record);
         }
 
+        /// <summary>Replaces the ledger with saved records and all-time totals (used when loading).</summary>
+        public void Restore(IEnumerable<TradeRecord> saved, long totalProfit, int totalSales, int totalPurchases)
+        {
+            records.Clear();
+            records.AddRange(saved);
+            TotalProfit = totalProfit;
+            TotalSales = totalSales;
+            TotalPurchases = totalPurchases;
+        }
+
         public DaySummary SummaryForDay(int day)
         {
             var summary = new DaySummary { Day = day };

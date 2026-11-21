@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using BlackMarket.Core;
 using BlackMarket.Customers;
 using BlackMarket.Economy;
 using BlackMarket.Inventory;
 using BlackMarket.Items;
 using BlackMarket.Progression;
+using BlackMarket.Save;
 
 namespace BlackMarket.Trading
 {
@@ -122,6 +124,12 @@ namespace BlackMarket.Trading
         /// <summary>True when the current visitor's deal has been completed.</summary>
         public bool DealDone { get; private set; }
 
+        /// <summary>
+        /// Raised when the shop is in a settled state worth saving: a visitor has left, an upgrade was bought,
+        /// or a new day started.
+        /// </summary>
+        public event Action Checkpoint;
+
         // ------------------------------------------------------------------ Visits
 
         /// <summary>Brings in the next visitor. Returns null if someone is already at the counter or the shop is closed.</summary>
@@ -160,6 +168,7 @@ namespace BlackMarket.Trading
             CurrentNegotiation = null;
             ItemOnOffer = null;
             Clock.Advance(random.Range(20, 45));
+            Checkpoint?.Invoke();
         }
 
         /// <summary>Player turns the visitor away without a deal.</summary>
@@ -339,6 +348,7 @@ namespace BlackMarket.Trading
             Inventory.IncreaseCapacity(Upgrades.InventoryCapacity);
             Ledger.Record(new TradeRecord(Clock.Day, Clock.TimeText, TradeKind.Upgrade,
                 $"{ShopUpgrades.Definition(id).Name} level {Upgrades.Level(id)}", cost, 0));
+            Checkpoint?.Invoke();
             return TradeResult.Ok(cost);
         }
 
@@ -350,7 +360,79 @@ namespace BlackMarket.Trading
             if (CurrentVisitor != null) throw new InvalidOperationException("Can't close while a visitor is at the counter.");
             DaySummary summary = Ledger.SummaryForDay(Clock.Day);
             Clock.StartNextDay();
+            Checkpoint?.Invoke();
             return summary;
+        }
+
+        // ------------------------------------------------------------------ Saving
+
+        /// <summary>A snapshot of the shop. Taken between visits, so no half-finished deal is ever saved.</summary>
+        public SaveData CreateSave()
+        {
+            var data = new SaveData
+            {
+                coins = Wallet.Coins,
+                day = Clock.Day,
+                minuteOfDay = Clock.MinuteOfDay,
+                visitCount = VisitCount,
+                appraisalLevel = Upgrades.Level(UpgradeId.AppraisalLens),
+                storageLevel = Upgrades.Level(UpgradeId.Storage),
+                reputationLevel = Upgrades.Level(UpgradeId.Reputation),
+                totalProfit = Ledger.TotalProfit,
+                totalSales = Ledger.TotalSales,
+                totalPurchases = Ledger.TotalPurchases
+            };
+
+            foreach (ItemInstance item in Inventory.Items)
+            {
+                data.items.Add(new SavedItem
+                {
+                    id = item.Definition.Id,
+                    condition = (int)item.Condition,
+                    flawed = item.HasHiddenFlaw,
+                    inspected = item.IsInspected,
+                    paid = item.PurchasePrice
+                });
+            }
+
+            IReadOnlyList<TradeRecord> records = Ledger.Records;
+            for (int i = Math.Max(0, records.Count - SaveValidator.MaxLedgerRecords); i < records.Count; i++)
+            {
+                TradeRecord r = records[i];
+                data.ledger.Add(new SavedRecord { day = r.Day, time = r.Time, kind = (int)r.Kind, description = r.Description, amount = r.Amount, profit = r.Profit });
+            }
+
+            return data;
+        }
+
+        /// <summary>Rebuilds a shop from a save. The save must have passed <see cref="SaveValidator"/>.</summary>
+        public static ShopGame FromSave(SaveData data, IRandom random)
+        {
+            List<string> problems = SaveValidator.Validate(data);
+            if (problems.Count > 0) throw new ArgumentException("Invalid save: " + string.Join(" ", problems), nameof(data));
+
+            var game = new ShopGame(random, data.coins) { VisitCount = data.visitCount };
+            game.Upgrades.SetLevel(UpgradeId.AppraisalLens, data.appraisalLevel);
+            game.Upgrades.SetLevel(UpgradeId.Storage, data.storageLevel);
+            game.Upgrades.SetLevel(UpgradeId.Reputation, data.reputationLevel);
+            game.Inventory.IncreaseCapacity(game.Upgrades.InventoryCapacity);
+            game.Clock.Restore(data.day, data.minuteOfDay);
+
+            foreach (SavedItem saved in data.items)
+            {
+                var item = new ItemInstance(ItemCatalog.Get(saved.id), (ItemCondition)saved.condition, saved.flawed);
+                item.MarkPurchased(saved.paid);
+                game.Inventory.TryAdd(item);
+            }
+
+            var records = new List<TradeRecord>();
+            foreach (SavedRecord r in data.ledger)
+            {
+                records.Add(new TradeRecord(r.day, r.time, (TradeKind)r.kind, r.description, r.amount, r.profit));
+            }
+
+            game.Ledger.Restore(records, data.totalProfit, data.totalSales, data.totalPurchases);
+            return game;
         }
     }
 }

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1] Saving (2026-11-21)
+### Added
+- The shop is saved automatically (coins, stock, upgrades, day and time, ledger) after every visit, upgrade and
+  day change, and whenever the app goes to the background. Loads on start.
+- `SaveData`, `SaveValidator` (rejects impossible or corrupt saves), `SaveStore` (write to temp → verify → swap,
+  keeps one backup, falls back to it if the save is damaged). `ShopGame.CreateSave` / `FromSave`, `Checkpoint` event.
+- 8 save tests (round trip, validation, corrupt file, backup, invalid data never overwrites a good save).
+
 ## [0.3.0] Visual direction & trading update (2026-11-21)
 ### Added
 - **Look:** `BlackMarket/Toon` shader (banded warm light, tinted shadows, vertex-colour tint and glow, rim light)

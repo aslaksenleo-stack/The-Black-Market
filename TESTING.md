@@ -23,6 +23,7 @@ cloud build is the first real test. Any error you see is a bug on my side: send 
 | `TapDetectorTests` | 7 | Tap vs long press vs drag, release far away, no double taps, cancel | Not yet run |
 | `NegotiationTests` | 13 | Accept at/over limit, counters move toward offer but never past limit, insults cost double patience, walk-away, determinism, ended haggles refuse offers | ✅ pass (outside Unity) |
 | `ShopGameTests` | 22 | Exact money, one coin short, repeated Buy, full storage, unaffordable offers refused before the visitor hears them, full buy→sell profit loop, selling at a loss, wrong/unowned items, budgets, upgrades, inspection and flaws, day close, seeded visitors | ✅ pass |
+| `SaveTests` | 8 | Snapshot round trip, validator rejects impossible saves, missing file = new game, backup kept, corrupt save falls back to backup, invalid data never overwrites a good save | ✅ pass |
 | `EconomyTests` (Wallet, Inventory, Item, Visitor, DayClock) | 25 | Wallet limits, inventory add/remove/full/duplicates, catalogue ids and models unique, values, estimates contain the true value, personalities valid, desperate vs greedy pricing, buyers want stock | ✅ pass |
 
 ## Manual checklist: Milestone 0 (phone)
@@ -66,6 +67,7 @@ cloud build is the first real test. Any error you see is a bug on my side: send 
 | 14 | Closing | At 18:00 a day summary appears; "Open shop · Day 2" continues | |
 | 15 | Shifty seller | Inspecting a "Shifty" seller's item sometimes reveals a crack and the value drops | |
 | 16 | Notch / rotate | Nothing important under the notch; landscape both ways | |
+| 17 | Saving | Make a deal, close the app fully, reopen: same coins, stock, upgrades and day | |
 
 ## Planned critical tests (later milestones, per GDD Part 14 I)
 - Buying: exact money, one coin short, repeated Buy presses, merchant out of stock

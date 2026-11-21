@@ -72,7 +72,8 @@ Illegal transitions are refused and logged.
 | Audio | ✅ SoundKit | Synthesises all sounds in code |
 | Shop | ✅ ShopSceneController, ✅ VisitDirector, ✅ ItemInspector, ✅ CounterItem, ✅ CounterInteractable, ✅ ShopDoor, ✅ ShopAnchors, ✅ ShopAtmosphere, ✅ TextFitter, ✅ Tween | Scene staging |
 | UI | ✅ UITheme, ✅ UISprites, ✅ UIFactory, ✅ UIMotion, ✅ SafeAreaFitter, ✅ ShopHUD, ✅ TradePanel, ✅ ModalPanel, ✅ InventoryPanel, ✅ InfoPanels (Upgrades, Ledger, DaySummary, InspectOverlay), ✅ ItemThumbnails | Built in code |
-| Merchants, Dimensions, Save, Appraisal device | — | Later milestones (travel, saving) |
+| Save | ✅ SaveData, ✅ SaveValidator, ✅ SaveStore | Plain C#; `GameManager` loads on start and saves on `ShopGame.Checkpoint` and app pause/quit (JSON in `Application.persistentDataPath`) |
+| Merchants, Dimensions, Appraisal device | — | Later milestones (travel) |
 
 ## Trading flow
 ```

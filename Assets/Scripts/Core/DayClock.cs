@@ -42,6 +42,14 @@ namespace BlackMarket.Core
             DayStarted?.Invoke(Day);
         }
 
+        /// <summary>Sets the day and time when loading a save.</summary>
+        public void Restore(int day, int minuteOfDay)
+        {
+            Day = Math.Max(1, day);
+            MinuteOfDay = Math.Max(OpeningMinute, Math.Min(ClosingMinute, minuteOfDay));
+            Changed?.Invoke();
+        }
+
         /// <summary>"10:24".</summary>
         public string TimeText => $"{MinuteOfDay / 60:00}:{MinuteOfDay % 60:00}";
     }

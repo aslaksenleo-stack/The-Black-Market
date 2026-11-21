@@ -108,7 +108,8 @@ Tests: **Window > General > Test Runner > EditMode > Run All**.
    offers annoy them. Run out of patience and they walk out.
 4. Spend profit on **Upgrades**: a better appraiser's loupe (tighter estimates), more storage, and reputation
    (rarer sellers, richer buyers). The **Ledger** (book on the counter) records every deal.
-5. At 18:00 the shop closes and you see the day's results. Ring the **bell** on the counter to call the next visitor sooner.
+5. Progress saves automatically (after each visit, upgrade and day, and when you leave the app).
+6. At 18:00 the shop closes and you see the day's results. Ring the **bell** on the counter to call the next visitor sooner.
 
 ## Checking work without Unity
 `Tools/README.md`: compile-check against Unity's API and run the tests (`Tools/CompileCheck/check.sh`), render the
