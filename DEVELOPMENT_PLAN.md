@@ -17,6 +17,36 @@ These are defaults I chose because the GDD leaves them open. None changes a core
 
 ---
 
+## Visual direction & trading update (v0.3.0) 🔶 (code pushed, awaiting cloud build + phone test)
+Requested: a stylised, slightly cartoonish 3D look (warm lanterns, wood, curiosities, clean UI), first-person behind
+the counter, and the core trading loop: sellers → inspect → negotiate → buy; buyers → offer from stock → negotiate
+→ sell → profit → improve the shop. This pulls the trading parts of Milestones 2–4 and the upgrade part of 6
+forward, in the order the brief asked for. Travel, marketplaces and saving are unchanged (still later).
+
+| Brief priority | Status | Where |
+|---|---|---|
+| 1. Visual style | 🔶 | Toon + glass shaders, generated textures, palette, Alegreya fonts (`Art/`, `Shaders/`) |
+| 2. First-person counter/shop | 🔶 | `ShopEnvironment`: counter, shelves, lanterns, storage corner, display case, banner, door + street |
+| 3. Seller arrives and offers | 🔶 | `VisitDirector`, `CustomerAvatar` (8 character looks), `VisitorGenerator` |
+| 4. Item inspection interface | 🔶 | Item card (`TradePanel`), close-up `ItemInspector`, hidden flaws |
+| 5. Buying and negotiation | ✅ logic (tested) / 🔶 UI | `Negotiation`, `ShopGame`, offer controls |
+| 6. Buyers arrive and request items | ✅ logic / 🔶 UI | `BuyerRequest`, inventory picker |
+| 7. Selling and profit | ✅ logic / 🔶 UI | `ShopGame.Complete`, `TradeLedger`, profit toasts, day summary |
+| 8. Animations, UI, atmosphere | 🔶 | Procedural walk/idle/talk/reactions, door, item arcs, synthesised sounds, UI motion |
+
+What changed and why:
+- **Rebuilt:** the greybox shop builder (replaced by the stylised generated shop), the HUD (new design system and
+  trading panels), `UITheme`/`UIFactory` (rounded, softer style replacing brass-bordered square panels).
+- **Removed:** the Travel button (it only showed "not powered yet"; travel returns with Milestone 5) and the
+  placeholder counter panel (replaced by the trading interface). The counter itself is no longer "used"; the bell
+  and ledger on it are.
+- **Kept as is:** core architecture, scene loading, game states, input, look maths, tap detection, interaction
+  (now only focuses usable objects), safe area, cloud build pipeline.
+- **Data in code, not ScriptableObjects (yet):** see ARCHITECTURE "Principles".
+
+**Completion condition:** the cloud build succeeds; on the phone, a seller visits, you inspect and buy their item,
+a buyer later asks for it, you sell it at a profit, and you can spend the profit on an upgrade.
+
 ## Milestone 0: Project foundation ✅ (verified on phone 2026-11-20, cloud build #3)
 **Objective:** a clean Unity project with the folder structure, core architecture, basic input and two scenes,
 that builds for Android.
@@ -36,7 +66,7 @@ that builds for Android.
 
 **Completion condition:** clean project launches successfully. The cloud build succeeds and the APK opens to the grey shop on your phone.
 
-## Milestone 1: Shop prototype 🔶 (code pushed, awaiting phone test)
+## Milestone 1: Shop prototype ✅ (superseded by v0.3.0; camera, input and interaction carried forward)
 Implemented: `CameraController` + `LookMath` (DPI-scaled look, yaw ±100°, pitch −35°…60°), `TapDetector`,
 `IInteractable` + `InteractionController` (centre-of-screen focus + tap-to-use), `CounterInteractable`,
 `ShopHUD` built from `UIFactory`/`UITheme` (money, rank, customer status, Inventory/Upgrades/Travel, contextual
@@ -61,18 +91,18 @@ Planned implementation:
 
 **Completion condition:** enter shop, look around, interact with the counter (GDD).
 
-## Milestone 2: First customer ⬜
+## Milestone 2: First customer 🔶 (delivered in v0.3.0, see above)
 CustomerProfile (ScriptableObject), CustomerAI state machine (Entering → WalkingToCounter → Waiting → Requesting →
 Leaving), NavMesh or waypoint movement between the Shop scene markers, request dialogue, CustomerUI, departure.
 Completion: a customer visits and requests an item.
 
-## Milestone 3: Items and inventory ⬜
+## Milestone 3: Items and inventory 🔶 (delivered in v0.3.0; 18 of 30 items)
 ItemDefinition (ScriptableObject), ItemDatabase with unique-ID validation, ItemInstance (condition, identified flag),
 InventoryManager with capacity and quantities, TransactionValidator, inspection view.
 Tests: add/remove, full inventory, negative quantity rejection, duplicate removal.
 Completion: items added and removed correctly.
 
-## Milestone 4: Buying and selling ⬜
+## Milestone 4: Buying and selling 🔶 (delivered in v0.3.0)
 Wallet, atomic Transaction (validate → apply money + inventory together → commit, or nothing changes), PriceCalculator,
 customer budgets and willingness to pay, NegotiationSystem (Accepted / Rejected / Counteroffer / Ended), button
 double-press protection, coin feedback.
@@ -84,7 +114,7 @@ OldWorldMarketplace scene, DimensionDefinition, PortalController (Shop → Trave
 movement + virtual joystick, merchant stalls, MerchantProfile with personality parameters, MerchantUI, return travel.
 Completion: leave shop, buy from a merchant, return.
 
-## Milestone 6: Economy and progression ⬜
+## Milestone 6: Economy and progression ⬜ (upgrades and day cycle done early in v0.3.0; market drift, rank, saving still to do)
 MarketPriceSystem with bounded supply/demand drift, upgrades (ScriptableObjects that change real values), business
 rank, UnlockManager, first SaveManager pass (versioned JSON, write-to-temp-then-swap, backup).
 Completion: earn money and improve the shop.

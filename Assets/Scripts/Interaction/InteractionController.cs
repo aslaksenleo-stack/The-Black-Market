@@ -52,7 +52,9 @@ namespace BlackMarket.Interaction
 
         private void Update()
         {
-            SetFocused(FindTarget(viewCamera.ViewportPointToRay(ScreenCentre)));
+            // Only usable objects get focus, so the prompt never offers something that can't be done.
+            IInteractable centre = FindTarget(viewCamera.ViewportPointToRay(ScreenCentre));
+            SetFocused(centre != null && centre.CanInteract ? centre : null);
 
             if (input == null)
             {

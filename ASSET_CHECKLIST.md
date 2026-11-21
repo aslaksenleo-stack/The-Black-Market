@@ -1,7 +1,14 @@
 # Asset Checklist
 
-**No production art or audio exists yet.** Milestone 0 uses grey `PH_` cube placeholders only.
-Status: ⬜ missing · 🟨 placeholder · ✅ final. All audio must be original or properly licensed (record the licence below).
+**Art direction (v0.3.0):** stylised, slightly cartoonish low-poly, generated in code (see ARCHITECTURE "Art
+pipeline"). 🟩 = stylised generated asset in the final art direction, which may later be replaced by hand-made models.
+Status: ⬜ missing · 🟨 placeholder · 🟩 generated (final style) · ✅ final. All audio must be original or properly licensed.
+
+| Licensed asset | Licence | Location |
+|---|---|---|
+| Alegreya Sans (Bold, Medium) | SIL Open Font License 1.1 | `Assets/Resources/Fonts/` (`OFL-AlegreyaSans.txt`) |
+| Alegreya SC (Black) | SIL Open Font License 1.1 | `Assets/Resources/Fonts/` (`OFL-AlegreyaSC.txt`) |
+| All sounds | Original, synthesised in code (`SoundKit`) | — |
 
 Mobile budgets (targets, to be verified on device in Milestone 9):
 items ≤ 3k triangles, 512–1024 px textures · characters ≤ 15k tris · shop scene ≤ 150k tris on screen, ≤ 150 draw calls.
@@ -9,23 +16,23 @@ items ≤ 3k triangles, 512–1024 px textures · characters ≤ 15k tris · sho
 ## Shop
 | Asset | Status | Notes |
 |---|---|---|
-| Counter | 🟨 | Wooden, worn, brass fittings |
-| Display shelves (3 upgrade tiers) | 🟨 | Tiers must look visibly better |
-| Tables | 🟨 | Display table with glass case |
-| Storage area / crates | ⬜ | Grows with Storage upgrade |
-| Lights (lamps, lanterns) | 🟨 | Two warm ceiling lamps + portal glow |
-| Entrance door | 🟨 | Frame only; door + opening animation missing |
-| Walls / floor / ceiling | 🟨 | Realistic materials |
-| Portal device | 🟨 | Brass frame + glowing core; activation VFX missing |
+| Counter | 🟩 | Wooden, worn, brass fittings |
+| Display shelves (3 upgrade tiers) | 🟩 one tier | Tiers must look visibly better |
+| Tables | 🟩 display case | Display table with glass case |
+| Storage area / crates | 🟩 | Grows with Storage upgrade |
+| Lights (lamps, lanterns) | 🟩 | Two warm ceiling lamps + portal glow |
+| Entrance door | 🟩 | Swings open with the shop bell |
+| Walls / floor / ceiling | 🟩 | Realistic materials |
+| Portal device | 🟩 | Brass frame + glowing core; activation VFX missing |
 | Appraisal equipment (basic, advanced, scanner) | ⬜ | |
-| Decorations | 🟨 | Ledger, bell, scales, shelf items |
+| Decorations | 🟩 | Ledger, bell, scales, shelf items |
 
 ## Characters
 | Asset | Status | Notes |
 |---|---|---|
-| Customer models ×6 types | ⬜ | Collector, Scientist, Adventurer, Wealthy Buyer, Engineer, Curious Visitor. Each must be recognisable by silhouette |
+| Customer models ×6 types | 🟩 8 looks | Collector, Scientist, Adventurer, Wealthy Buyer, Engineer, Curious Visitor. Each must be recognisable by silhouette |
 | Merchant models ×5 personalities | ⬜ | Collector, Desperate Trader, Professional, Mysterious Dealer, Opportunist |
-| Idle / talking / walking animations | ⬜ | Shared humanoid rig where possible |
+| Idle / talking / walking animations | 🟩 | Procedural (CustomerAvatar), no rig needed |
 
 ## Marketplaces
 | Asset | Status |
@@ -36,24 +43,24 @@ items ≤ 3k triangles, 512–1024 px textures · characters ≤ 15k tris · sho
 ## UI
 | Asset | Status |
 |---|---|
-| Font (licensed, readable at small sizes) | 🟨 Unity built-in font for now |
-| Icon set: coins, rarity, categories, HUD buttons | ⬜ |
-| Panel / button sprites (one consistent style) | 🟨 Flat code-drawn panels (UITheme) |
-| 30 item inventory icons (rendered from the 3D models, not AI-generic) | ⬜ |
+| Font (licensed, readable at small sizes) | ✅ Alegreya Sans / SC (OFL) |
+| Icon set: coins, rarity, categories, HUD buttons | 🟩 drawn in code (UISprites) |
+| Panel / button sprites (one consistent style) | 🟩 rounded, drawn in code |
+| 30 item inventory icons (rendered from the 3D models, not AI-generic) | 🟩 rendered at runtime (18 items) |
 
 ## Audio
 | Sound | Status | Licence |
 |---|---|---|
-| Shop ambience | ⬜ | |
-| Customer footsteps | ⬜ | |
-| Door opening | ⬜ | |
-| Transaction confirm / coins | ⬜ | |
-| Item inspection | ⬜ | |
+| Shop ambience | 🟩 | Original (synthesised) |
+| Customer footsteps | 🟩 | Original (synthesised) |
+| Door opening | 🟩 | Original (synthesised) |
+| Transaction confirm / coins | 🟩 | Original (synthesised) |
+| Item inspection | 🟩 | Original (synthesised) |
 | Portal activation | ⬜ | |
 | Old World ambience | ⬜ | |
 | Unknown ambience | ⬜ | |
 | Merchant interaction | ⬜ | |
-| UI clicks / accept / reject | ⬜ | |
+| UI clicks / accept / reject | 🟩 | Original (synthesised) |
 
 ## Items: proposed first 30 (editable)
 Every item needs a unique model with a distinct silhouette, not a recoloured one.

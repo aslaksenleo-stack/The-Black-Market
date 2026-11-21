@@ -5,8 +5,8 @@ using UnityEngine;
 namespace BlackMarket.Shop
 {
     /// <summary>
-    /// The shop counter. Using it opens the counter panel, where customer trades will happen.
-    /// It only announces that it was used; ShopSceneController decides what happens.
+    /// Something on the counter the player can use: the bell (call the next visitor) or the ledger
+    /// (open the trade ledger). It only announces that it was used; the scene controller decides what happens.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class CounterInteractable : MonoBehaviour, IInteractable
@@ -17,6 +17,11 @@ namespace BlackMarket.Shop
         public bool CanInteract => isActiveAndEnabled;
 
         public event Action Used;
+
+        public void Configure(string newPrompt)
+        {
+            prompt = newPrompt;
+        }
 
         public void Interact()
         {

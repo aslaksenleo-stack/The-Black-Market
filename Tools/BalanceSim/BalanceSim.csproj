@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><LangVersion>9.0</LangVersion><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup>
+  <ItemGroup><Compile Include="Program.cs;$(MSBuildThisFileDirectory)../../Assets/Scripts/Items/*.cs;$(MSBuildThisFileDirectory)../../Assets/Scripts/Economy/*.cs;$(MSBuildThisFileDirectory)../../Assets/Scripts/Inventory/*.cs;$(MSBuildThisFileDirectory)../../Assets/Scripts/Customers/Personality*.cs;$(MSBuildThisFileDirectory)../../Assets/Scripts/Customers/Visitor.cs;$(MSBuildThisFileDirectory)../../Assets/Scripts/Customers/VisitorGenerator.cs;$(MSBuildThisFileDirectory)../../Assets/Scripts/Trading/*.cs;$(MSBuildThisFileDirectory)../../Assets/Scripts/Progression/*.cs;$(MSBuildThisFileDirectory)../../Assets/Scripts/Core/DayClock.cs" /></ItemGroup>
+</Project>

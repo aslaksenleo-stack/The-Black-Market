@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>netstandard2.1</TargetFramework><LangVersion>9.0</LangVersion><AssemblyName>BlackMarket.Runtime</AssemblyName>
+  <EnableDefaultCompileItems>false</EnableDefaultCompileItems><DefineConstants>ENABLE_LEGACY_INPUT_MANAGER;UNITY_ANDROID</DefineConstants><NoWarn>CS1701;CS1702;MSB3277</NoWarn></PropertyGroup>
+  <ItemGroup><Compile Include="$(MSBuildThisFileDirectory)../../../Assets/Scripts/**/*.cs" /></ItemGroup>
+  <ItemGroup>
+    <Reference Include="$(MSBuildThisFileDirectory)../../.cache/refs/unityengine.modules/lib/net45/*.dll" Exclude="$(MSBuildThisFileDirectory)../../.cache/refs/unityengine.modules/lib/net45/UnityEngine.dll" />
+    <Reference Include="$(MSBuildThisFileDirectory)../../.cache/refs/unity3d.unityengine.ui/lib/UnityEngine.UI.dll" />
+  </ItemGroup>
+</Project>

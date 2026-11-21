@@ -5,8 +5,12 @@
 A first-person interdimensional trading simulator for mobile (Android first, iOS later), built in Unity with C#.
 The full Game Design Document (GDD) is the source of truth.
 
-**Current status:** Milestone 0 (Project foundation). Code written, **not yet compiled**. The first cloud build is the first real test.
-See `DEVELOPMENT_PLAN.md`.
+**Current status:** Visual direction & trading update (v0.3.0): a stylised, lantern-lit shop seen from behind the
+counter, with sellers and buyers who walk in, item inspection, haggling, buying, selling, profit, upgrades and
+day cycles. Code compiles against Unity's API and 80 gameplay tests pass, but this version **has not been run in
+Unity yet**: the next cloud build is its first real test. See `DEVELOPMENT_PLAN.md` and `TESTING.md`.
+
+Preview renders (made outside Unity, so lighting is approximate): `Docs/preview/`.
 
 ---
 
@@ -71,8 +75,9 @@ Unity changes its website now and then, so button names may differ slightly. Loo
 2. Open the downloaded `.apk`. Allow your browser to **Install unknown apps** when asked.
 3. Tap **Install**, then open **The Black Market**.
 
-Expected for Milestone 0: a black screen for a moment, then a grey placeholder shop in landscape (floor, a
-counter in front of you, walls). The camera doesn't move yet. That comes in Milestone 1.
+Expected for v0.3.0: a black screen for a moment, then the shop: wooden counter in front of you, lanterns,
+shelves of curiosities, and the door and windows onto a lantern-lit street. A first visitor walks in within a few
+seconds. See `TESTING.md` for the full checklist.
 
 ### If a build fails
 Open the failed build > **Log** (or download the full log). Copy the lines containing **error** (usually red or
@@ -88,9 +93,26 @@ Tests: **Window > General > Test Runner > EditMode > Run All**.
 ## Controls
 | Action | Phone | Editor |
 |---|---|---|
-| Look | Drag a finger | Hold right mouse button + drag |
-| Move (marketplaces) | Virtual joystick (later) | WASD |
-| Interact | On-screen button (later) | E |
+| Look around | Drag a finger on the 3D view | Hold right mouse button + drag |
+| Use what you look at (bell, ledger, item) | Tap it, or tap the prompt under the crosshair | Left-click it, or E |
+| Turn an item while inspecting | Drag | Hold right mouse button + drag |
+| Trade | Buttons on the right; item details on the left | Same |
+
+## How to play
+1. **Sellers** walk in carrying something. Their item goes on the counter with its name, rarity, your estimate of
+   its value and their asking price. Tap the item (or **Inspect closely**) and turn it around: inspecting narrows the
+   estimate and reveals hidden damage that shifty sellers don't mention. Then **Buy**, **Make an offer**, or decline.
+2. **Buyers** ask for an item or a kind of item. **Show an item** from your storage; they make an offer. Sell, ask
+   for more, show something else, or decline.
+3. Haggling: every visitor has a hidden limit and limited patience (the stars in their speech bubble). Lowball
+   offers annoy them. Run out of patience and they walk out.
+4. Spend profit on **Upgrades**: a better appraiser's loupe (tighter estimates), more storage, and reputation
+   (rarer sellers, richer buyers). The **Ledger** (book on the counter) records every deal.
+5. At 18:00 the shop closes and you see the day's results. Ring the **bell** on the counter to call the next visitor sooner.
+
+## Checking work without Unity
+`Tools/README.md`: compile-check against Unity's API and run the tests (`Tools/CompileCheck/check.sh`), render the
+generated art (`Tools/ArtPreview/preview.sh`) and simulate the economy (`Tools/BalanceSim`).
 
 ## Documentation
-`DEVELOPMENT_PLAN.md` · `ARCHITECTURE.md` · `ASSET_CHECKLIST.md` · `TESTING.md` · `CHANGELOG.md`
+`DEVELOPMENT_PLAN.md` · `ARCHITECTURE.md` · `ASSET_CHECKLIST.md` · `TESTING.md` · `CHANGELOG.md` · `Tools/README.md`

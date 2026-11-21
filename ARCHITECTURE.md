@@ -4,8 +4,11 @@
 - Small, focused classes. No giant managers.
 - **Gameplay logic is plain C#** wherever possible (no `MonoBehaviour`), so it can be unit-tested without scenes.
   MonoBehaviours are thin adapters: they read input, show things and forward calls.
-- **Data vs behaviour:** definitions (items, customers, merchants, dimensions, upgrades) are ScriptableObjects.
-  Runtime state (an item in your inventory, a customer in the shop) is a separate plain class.
+- **Data vs behaviour:** definitions (items, personalities, upgrades) are immutable data, separate from runtime
+  state (an item in your inventory, a visitor in the shop). They currently live in code catalogues
+  (`ItemCatalog`, `PersonalityCatalog`, `ShopUpgrades`) rather than ScriptableObject assets, because the project is
+  built without anyone opening the Editor and code keeps them reviewable and testable. Moving them to
+  ScriptableObjects later only changes the catalogue classes.
 - **UI never changes game data directly.** It asks a system (e.g. `TradingManager.TrySell(...)`), which validates and
   then raises an event the UI listens to.
 - **Events for communication** (`event Action<...>`), not objects searching for each other.
@@ -16,7 +19,7 @@ Assembly definitions keep compile times short and enforce boundaries:
 
 | Assembly | Folder | Can reference |
 |---|---|---|
-| `BlackMarket.Runtime` | `Assets/Scripts` | Unity, `Unity.InputSystem` |
+| `BlackMarket.Runtime` | `Assets/Scripts` | Unity, `UnityEngine.UI`, `Unity.InputSystem` |
 | `BlackMarket.Editor` | `Assets/Editor` | Runtime (editor only, never in builds). `ProjectSetup` (no-UI setup steps), `ProjectSetupMenu` (menu), `CloudBuild` (cloud pre-export hook) |
 | `BlackMarket.Tests.EditMode` | `Assets/Tests/EditMode` | Runtime, NUnit, Test Runner |
 
@@ -53,36 +56,75 @@ Booting ──► MainMenu ──► Shop ◄──► Traveling ◄──► Ma
 Travel must pass through `Traveling`. Portal effects, autosave and loading screens hook into that moment.
 Illegal transitions are refused and logged.
 
-## Systems (planned, per GDD 10.4)
-✅ = exists now.
+## Systems (per GDD 10.4)
+✅ = exists now. Plain C# = no UnityEngine types, covered by edit-mode tests that also run outside Unity.
 
-| Folder | Classes | Milestone |
+| Folder | Classes | Notes |
 |---|---|---|
-| Core | ✅ GameManager, ✅ ServiceRegistry, ✅ GameStateManager, ✅ SceneLoader, ✅ SceneNames, ✅ Bootstrapper | 0 |
-| Player | ✅ IPlayerInput, ✅ MobileInputController, ✅ TapDetector, ✅ LookMath, ✅ CameraController, FirstPersonController | 0 / 1 / 5 |
-| Interaction | ✅ IInteractable, ✅ InteractionController | 1 |
-| Customers | CustomerProfile (SO), CustomerAI, CustomerSpawner, CustomerQueue, CustomerPreferenceSystem, CustomerManager | 2 |
-| Items | ItemDefinition (SO), ItemDatabase, ItemInstance, ItemInspectionSystem, ItemSpawner | 3 |
-| Inventory | InventoryManager, InventorySlot, StorageManager | 3 |
-| Trading | TransactionValidator, TradingManager, BuyingSystem, SellingSystem, NegotiationSystem | 3–4 |
-| Economy | PriceCalculator, EconomyManager, MarketPriceSystem, SupplyDemandSystem | 4 / 6 |
-| Merchants | MerchantProfile (SO), MerchantInventory, MerchantNegotiationSystem, MerchantManager | 5 |
-| Dimensions | DimensionDefinition (SO), DimensionManager, MarketplaceManager, PortalController | 5 / 8 |
-| Shop | ✅ CounterInteractable, ✅ ShopSceneController, ShopManager, ShopUpgradeManager, ShopExpansionSystem | 1 / 6 |
-| Progression | ProgressionManager, BusinessRankSystem, UnlockManager, AchievementManager | 6 |
-| Save | SaveData, SaveManager, SaveValidator | 6 |
-| Appraisal | AppraisalManager, AppraisalDevice, AppraisalResult | 7 |
-| UI | ✅ UITheme, ✅ UIFactory, ✅ SafeAreaFitter, ✅ ShopHUD, CustomerUI, MerchantUI, InventoryUI, UpgradeUI, TravelUI, AppraisalUI, DialogueUI | 1 → 7 |
+| Core | ✅ GameManager, ✅ ServiceRegistry, ✅ GameStateManager, ✅ SceneLoader, ✅ SceneNames, ✅ Bootstrapper, ✅ DayClock | GameManager also creates the persistent `ShopGame` |
+| Items | ✅ ItemDefinition, ✅ ItemCatalog (18 items), ✅ ItemInstance, ✅ ItemTypes (Rarity, Category, Condition) | Plain C# |
+| Economy | ✅ Wallet, ✅ ValueEstimate, ✅ IRandom/SeededRandom | Plain C# |
+| Inventory | ✅ ShopInventory | Plain C# |
+| Customers | ✅ Personality + PersonalityCatalog (6 seller, 5 buyer types, with dialogue), ✅ Visitor, ✅ BuyerRequest, ✅ VisitorGenerator; ✅ CustomerAvatar (Unity) | Logic plain C#; avatar is the 3D body |
+| Trading | ✅ Negotiation, ✅ ShopGame (facade, atomic buy/sell), ✅ TradeLedger | Plain C# |
+| Progression | ✅ ShopUpgrades (Appraiser's Loupe, Storage, Reputation) | Plain C# |
+| Art | ✅ MeshBuilder, ✅ Palette, ✅ CharacterBuilder, ✅ ItemModelBuilder, ✅ ShopEnvironment, ✅ TexturePainter, ✅ ArtLibrary | Generates all 3D art in code |
+| Audio | ✅ SoundKit | Synthesises all sounds in code |
+| Shop | ✅ ShopSceneController, ✅ VisitDirector, ✅ ItemInspector, ✅ CounterItem, ✅ CounterInteractable, ✅ ShopDoor, ✅ ShopAnchors, ✅ ShopAtmosphere, ✅ TextFitter, ✅ Tween | Scene staging |
+| UI | ✅ UITheme, ✅ UISprites, ✅ UIFactory, ✅ UIMotion, ✅ SafeAreaFitter, ✅ ShopHUD, ✅ TradePanel, ✅ ModalPanel, ✅ InventoryPanel, ✅ InfoPanels (Upgrades, Ledger, DaySummary, InspectOverlay), ✅ ItemThumbnails | Built in code |
+| Merchants, Dimensions, Save, Appraisal device | — | Later milestones (travel, saving) |
+
+## Trading flow
+```
+VisitDirector (Unity: stages the scene)          ShopGame (plain C#: decides and changes data)
+───────────────────────────────────────          ─────────────────────────────────────────────
+idle timer / bell ─────────────────────────────► BeginVisit()  → VisitorGenerator.Next()
+avatar walks in, door opens, item to counter
+player inspects ───────────────────────────────► Inspect(item) → flaw revealed, estimate tightened
+player: Buy / Make an offer / Sell / Ask more ──► AcceptCurrentPrice() / Propose(price)
+                                                   validate everything (coins, space, item owned,
+                                                   buyer wants it) BEFORE the visitor hears it,
+                                                   Negotiation answers, then apply coins + stock
+                                                   together and write the ledger
+reaction, dialogue, item moves, coins pop
+avatar leaves ─────────────────────────────────► EndVisit() → time passes
+18:00 ─────────────────────────────────────────► CloseDay() → DaySummary
+```
+`ShopGame` is created once by `GameManager` and registered in `ServiceRegistry`, so the shop's state survives scene
+changes (travel, later). Scene objects subscribe to its events and must unsubscribe in `OnDestroy`.
+
+## Negotiation model
+Each visitor has a visible price and a hidden limit (lowest a seller accepts / most a buyer pays, after budget),
+patience (2–6 rejected offers) and flexibility. An offer that meets their price closes at their price; one past
+their limit closes at the player's price; otherwise they move part-way toward it (never past the limit) and lose
+patience, twice as fast for insulting offers (40% past the limit). Deterministic for the same offers.
+
+Values: `TrueValue = base × condition × (0.45 if hidden flaw)`. Sellers price from what the item *appears* to be
+worth; until the player inspects it, the estimate is built from that appearance, which is how shifty sellers win.
+Buyers pay from the true value × their valuation (+15% for categories they love), capped by their budget.
+
+## Art pipeline (no hand-made assets)
+- **Meshes**: `MeshBuilder` combines boxes, lathes, spheres, tori and gems into one mesh per object with vertex
+  colours, so most things draw in one call. Triangle winding is fixed automatically from expected normals.
+- **Glow** is vertex alpha (0 = self-lit). **Textures** (planks, wood, brick, plaster, cobbles, cloth) are painted
+  by `TexturePainter` at build time. **Shaders**: `BlackMarket/Toon` (banded light, tinted shadows, optional rim)
+  and `BlackMarket/Glass`. Vertex colours are authored in sRGB and converted in the shader in Linear colour space.
+- **Scene**: `ShopEnvironment` describes the shop as meshes + lights + anchors (no GameObjects), the editor's
+  `ShopSceneBuilder` turns it into the scene and saves generated assets under `Assets/Art/Generated` (rebuilt every
+  build, git-ignored). Characters and counter items are built at runtime with the same code.
+- **Fonts**: Alegreya Sans and Alegreya SC (SIL OFL, `Assets/Resources/Fonts`). **Sounds**: synthesised by `SoundKit`.
+- `Tools/ArtPreview` renders the same code outside Unity for review.
 
 ## UI approach
-UI is built in code (`UIFactory`) from one design system (`UITheme`): dark walnut panels, thin brass borders,
-parchment text, flat colours, square corners, 1920×1080 reference scaled by height, touch targets ≥140 px tall,
-and everything inside the phone's safe area. Screens only display data and raise events. Controllers such as
-`ShopSceneController` connect them to gameplay.
+UI is built in code (`UIFactory`) from one design system (`UITheme`): dark, warm translucent panels with rounded
+corners and a hairline edge, parchment speech bubbles, one gold accent for money and titles, green only for "do the
+deal", red only for "decline". Icons and rounded shapes are drawn in code (`UISprites`). 1920×1080 reference scaled
+by height, touch targets ≥ 96 px, everything inside the safe area. Screens only display data and raise events;
+`VisitDirector` and `ShopSceneController` connect them to `ShopGame`. Full-screen panels (`ModalPanel`) pause
+looking around.
 
-## Generated scenes
-Scenes containing a `__GeneratedByProjectSetup` object are rebuilt from code on every cloud build
-(`ShopSceneBuilder`), so layout changes ship by pushing code. Scenes made by hand (no marker) are never overwritten.
+Layout: day/time top-left, coins + shop level top-right, item card left, visitor centre, speech bubble and choices
+right, shortcuts (Inventory, Upgrades, Ledger) bottom-left.
 
 ## Key rules for upcoming systems
 - **Transactions are atomic:** validate everything (money, stock, capacity, item still exists) first, then apply

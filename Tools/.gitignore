@@ -1,0 +1,8 @@
+.cache/
+**/bin/
+**/obj/
+ArtPreview/out/
+ArtPreview/node_modules/
+ArtPreview/package*.json
+# The root .gitignore drops Unity IDE project files; these tool projects are real source.
+!*.csproj

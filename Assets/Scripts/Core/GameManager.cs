@@ -1,3 +1,5 @@
+using BlackMarket.Economy;
+using BlackMarket.Trading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,6 +20,9 @@ namespace BlackMarket.Core
 
         public GameStateManager State { get; private set; }
         public SceneLoader Scenes { get; private set; }
+
+        /// <summary>The shop's trading state (coins, stock, upgrades, clock). Lives as long as the game.</summary>
+        public ShopGame Shop { get; private set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
@@ -52,9 +57,11 @@ namespace BlackMarket.Core
 
             State = new GameStateManager(GameState.Booting);
             Scenes = new SceneLoader(this);
+            Shop = new ShopGame(new SeededRandom(System.Environment.TickCount));
 
             ServiceRegistry.Register(State);
             ServiceRegistry.Register(Scenes);
+            ServiceRegistry.Register(Shop);
 
             State.StateChanged += LogStateChange;
             SceneManager.sceneLoaded += OnSceneLoaded;

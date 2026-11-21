@@ -1,0 +1,24 @@
+<!doctype html><html><body style="margin:0;background:#2a2230"><canvas id=c></canvas>
+<script type="module">
+import * as THREE from './node_modules/three/build/three.module.js';
+import { toonMaterial, glassMaterial, buildPart } from './toon.js';
+const params = new URLSearchParams(location.search); const filter = params.get('f') || 'char_'; const cols = +(params.get('cols')||4);
+const data = await (await fetch(params.get('src')||'models.json')).json();
+const keys = Object.keys(data).filter(k => k.startsWith(filter));
+const W = 1600, rows = Math.ceil(keys.length/cols), cell = W/cols, H = Math.round(cell*rows*(+(params.get('aspect')||1.25)));
+const r = new THREE.WebGLRenderer({canvas: document.getElementById('c'), antialias: true}); r.setSize(W, H); r.setScissorTest(true);
+const toon = toonMaterial(new THREE.Vector3(-0.5, 0.8, 0.6)); const glass = glassMaterial();
+keys.forEach((k, idx) => {
+  const scene = new THREE.Scene(); scene.background = new THREE.Color(0x2a2230);
+  const root = new THREE.Group(); root.scale.z = -1; // Unity left-handed -> three right-handed
+  data[k].forEach(p => root.add(buildPart(p, toon, glass))); scene.add(root);
+  const box = new THREE.Box3().setFromObject(root); const size = box.getSize(new THREE.Vector3()); const ctr = box.getCenter(new THREE.Vector3());
+  const ch = H/rows; const cam = new THREE.PerspectiveCamera(30, cell/ch, 0.01, 50);
+  const dist = Math.max(size.y, size.x*ch/cell) / (2*Math.tan(15*Math.PI/180)) * 1.25;
+  const yaw = +(params.get('yaw')||25)*Math.PI/180;
+  cam.position.set(ctr.x + Math.sin(yaw)*dist, ctr.y + dist*0.18, ctr.z - Math.cos(yaw)*dist); cam.lookAt(ctr);
+  const x = (idx%cols)*cell, y = H - (Math.floor(idx/cols)+1)*ch;
+  r.setViewport(x, y, cell, ch); r.setScissor(x, y, cell, ch); r.render(scene, cam);
+});
+document.title = 'done';
+</script></body></html>

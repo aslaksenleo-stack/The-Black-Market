@@ -117,6 +117,10 @@ namespace BlackMarket.EditorTools
         {
             PlayerSettings.productName = ProductName;
 
+            // Linear colour space: lighting falls off naturally and the toon shading looks as designed.
+            // (Shaders convert vertex colours, so the game also renders correctly in Gamma.)
+            PlayerSettings.colorSpace = ColorSpace.Linear;
+
             NamedBuildTarget android = NamedBuildTarget.Android;
             PlayerSettings.SetScriptingBackend(android, ScriptingImplementation.IL2CPP); // required for 64-bit
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;     // Google Play requirement
@@ -168,6 +172,11 @@ namespace BlackMarket.EditorTools
             if (requireAndroidTarget && EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
             {
                 problems.Add("Active build target is not Android.");
+            }
+
+            if (!ShopSceneBuilder.ShadersValid(out string shaderProblem))
+            {
+                problems.Add(shaderProblem);
             }
 
             if (PlayerSettings.GetScriptingBackend(NamedBuildTarget.Android) != ScriptingImplementation.IL2CPP)

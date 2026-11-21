@@ -33,8 +33,24 @@ namespace BlackMarket.Player
         private IPlayerInput input;
         private float baseYaw;
         private Vector2 look; // x = yaw offset, y = pitch
+        private Vector2? focusLook;
+        private float focusSpeed;
 
         public Vector2 CurrentLook => look;
+
+        /// <summary>
+        /// Smoothly turns the view toward a world point (e.g. a visitor arriving at the counter).
+        /// Any drag by the player cancels it immediately, so the player always stays in control.
+        /// </summary>
+        public void FocusOn(Vector3 worldPoint, float seconds = 0.8f)
+        {
+            Transform eye = pitchPivot != null ? pitchPivot : transform;
+            Vector3 to = worldPoint - eye.position;
+            float yaw = Mathf.DeltaAngle(baseYaw, Mathf.Atan2(to.x, to.z) * Mathf.Rad2Deg);
+            float pitch = -Mathf.Atan2(to.y, new Vector2(to.x, to.z).magnitude) * Mathf.Rad2Deg;
+            focusLook = new Vector2(Mathf.Clamp(yaw, -yawLimit, yawLimit), Mathf.Clamp(pitch, minPitch, maxPitch));
+            focusSpeed = Mathf.Max(0.1f, (focusLook.Value - look).magnitude / Mathf.Max(0.1f, seconds));
+        }
 
         private void Awake()
         {
@@ -68,9 +84,17 @@ namespace BlackMarket.Player
             Vector2 delta = input.LookDelta;
             if (delta == Vector2.zero)
             {
+                if (focusLook.HasValue)
+                {
+                    look = Vector2.MoveTowards(look, focusLook.Value, focusSpeed * Time.deltaTime);
+                    if (look == focusLook.Value) focusLook = null;
+                    ApplyRotation();
+                }
+
                 return;
             }
 
+            focusLook = null;
             look = LookMath.Apply(look, delta, Screen.dpi, degreesPerInch, yawLimit, minPitch, maxPitch, invertY);
             ApplyRotation();
         }

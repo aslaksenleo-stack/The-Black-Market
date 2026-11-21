@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.3.0] Visual direction & trading update (2026-11-21)
+### Added
+- **Look:** `BlackMarket/Toon` shader (banded warm light, tinted shadows, vertex-colour tint and glow, rim light)
+  and `BlackMarket/Glass`; generated textures (planks, wood, brick, plaster, cobbles, cloth); one shared `Palette`;
+  Alegreya Sans / Alegreya SC fonts (SIL OFL).
+- **Shop:** stylised interior generated in code (`ShopEnvironment`): wooden counter with leather trading mat, bell,
+  ledger, candles; shelves of real item models; display case; storage corner; portal device; banner; hanging
+  lanterns and sconces; swinging entrance door; windows and door onto a lantern-lit market street.
+- **Characters:** 8 stylised visitor looks (`CharacterBuilder`) with procedural walk, idle, talk and reactions
+  (`CustomerAvatar`).
+- **Items:** 18 items with unique models (`ItemModelBuilder`), rarity, condition, hidden flaws (visible crack).
+- **Trading (plain C#):** `ShopGame` facade with atomic buy/sell, `Negotiation`, 11 personalities with dialogue,
+  `VisitorGenerator`, `ValueEstimate`, `Wallet`, `ShopInventory`, `TradeLedger`, `ShopUpgrades`, `DayClock`.
+- **Flow:** `VisitDirector`: sellers bring items, buyers ask for items, inspect, haggle, buy, sell, profit, leave.
+- **Inspection:** lift the item to the camera and turn it (`ItemInspector`); narrows the estimate, exposes flaws.
+- **UI:** new design system (`UITheme`, `UISprites`, `UIFactory`, `UIMotion`), HUD, trade panel (speech bubble,
+  patience stars, item card, offer controls), inventory with 3D thumbnails, upgrades, ledger, day summary.
+- **Sound:** synthesised bells, coins, chimes, footsteps and room ambience (`SoundKit`).
+- **Tools/** (outside Unity): compile check + tests, art preview renderer, balance simulator.
+- 60 new edit-mode tests (80 in total runnable outside Unity, plus the 14 Unity-maths tests).
+### Changed
+- `ShopHUD`, `UITheme`, `UIFactory`, `ShopSceneBuilder`, `ShopSceneController` rewritten. `CameraController` can
+  ease toward a point (cancelled by any drag). `InteractionController` only focuses usable objects.
+  `CounterInteractable` is now used for the bell and ledger. `GameManager` creates `ShopGame`.
+- Player settings: Linear colour space. Cloud build fails if a game shader doesn't compile.
+### Removed
+- Travel button (did nothing yet), placeholder counter panel, greybox placeholder materials.
+### Not yet verified
+- Not run in Unity yet. Shaders and Unity-side behaviour are first exercised by the next cloud build.
+
 ## [0.2.0] Milestone 1: Shop prototype (2026-11-21)
 ### Added
 - Touch camera look (`CameraController`, `LookMath`), tap detection (`TapDetector`), UI-aware touch handling.
